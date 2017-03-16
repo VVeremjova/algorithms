@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <assert.h>
 
 using namespace std;
 
@@ -47,19 +49,45 @@ int binary_search_0(const std::vector<int>& A, int key, int first = -1, int last
        }
        if(key < A[i]) {
          last = i-1;
-//       cout<<"left "<<first<<",element: "<<A[i]<<", right = "<<last<<endl;
+        // cout<<"left "<<first<<",element: "<<A[i]<<", right = "<<last<<endl;
 
            return binary_search_0(A,  key, first, last);
        }
        if(key >A[i]) {
          first = i+1;
-//          cout<<"left "<<first<<",element: "<<A[i]<<", right = "<<last<<endl;
+        // cout<<"left "<<first<<",element: "<<A[i]<<", right = "<<last<<endl;
          return  binary_search_0(A, key, first, last);
        }
    }
    return -1;
 }
 
+int binary_search_1(const std::vector<int>& v, size_t begin, size_t end, int key) {
+    assert(std::is_sorted(v.begin(), v.end()));
+
+    if (begin == end) return -1;
+    if ((end - begin) == 1) {
+        if (v[begin] == key)
+            return begin;
+        else
+            return -1;
+    }
+
+    size_t b = 0;
+    size_t m = (begin+end)/2;
+    // [b, e) = [b,m) U [m,e)
+
+    if (key <v [m]) {
+     return rl = binary_search_1(v, begin, m, key);
+    }
+    else if (v[m] <key) {
+         return  binary_search_1(v, m, end, key);
+    }
+     else {
+        return m;
+    }
+
+}
 
 template <class TFunc, class TResult, class TParam1, class TParam2>
 void test(TResult expect, TFunc f, TParam1 param1,  TParam2 param2) {
