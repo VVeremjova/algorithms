@@ -78,7 +78,7 @@ int binary_search_1(const std::vector<int>& v, size_t begin, size_t end, int key
     // [b, e) = [b,m) U [m,e)
 
     if (key <v [m]) {
-     return rl = binary_search_1(v, begin, m, key);
+     return  binary_search_1(v, begin, m, key);
     }
     else if (v[m] <key) {
          return  binary_search_1(v, m, end, key);
@@ -263,5 +263,16 @@ int main(int argc, char *argv[])
 
     test(0, naive_search_0, Array({key, 1, key, 10, 11, 12}), key);
     test(2, naive_search_0, Array({4, 1, key, 2,key, 7, 10}), key);
+
+
+    test(-1, binary_search_1, Array(), 0, 0, key); // const std::vector<int>& v, size_t begin, size_t end, int key);
+    test(-1, binary_search_1, Array({1, 2, 3, 4, 5, 7}), 0, 6, key);
+    test(0, binary_search_1, Array({8, 9, 18}), 0, 3, key);
+    test(1, binary_search_1, Array({1, 8, 10}), 0, 3, key);
+    test(2, binary_search_1, Array({1, 2, 8}), 0, 3, key);
+
+    test(0, binary_search_1, Array({key, 9, 10, 11, 12}), 0, 5, key);
+    test(2, binary_search_1, Array({4, 5, key, 11, 17, 20}), 0, 6, key);
+
     return 0;
 }
