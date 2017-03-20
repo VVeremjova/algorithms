@@ -62,30 +62,44 @@ int binary_search_0(const std::vector<int>& A, int key, int first = -1, int last
    return -1;
 }
 
-int binary_search_1(const std::vector<int>& v, size_t begin, size_t end, int key) {
+int binary_search_1(const std::vector<int>& v, size_t begin, size_t end, int key //, size_t depth=0
+                    ) {
+    //assert(depth <1000)
     assert(std::is_sorted(v.begin(), v.end()));
+    if(begin<end){
+        size_t m = begin+ (end-begin)/2;
+        // [b, e) = [b,m) U[m] U [m+1,e)
+        if (key <v [m]) {
+         return  binary_search_1(v, begin, m, key);
+        }
+        else if (v[m] <key) {
+             return  binary_search_1(v, m+1, end, key);
+        }
+         else {
+            return m;
+        }
+    }
+    return -1;
+}
 
-    if (begin == end) return -1;
-    if ((end - begin) == 1) {
-        if (v[begin] == key)
-            return begin;
-        else
-            return -1;
+int binary_search_2(const std::vector<int>& v, int key) {
+    assert(std::is_sorted(v.begin(), v.end()));
+    size_t begin = 0;
+    size_t end = v.size();
+    while (begin<end) {
+        size_t m = (begin+end)/2;
+        // [b, e) = [b,m) U[m] U [m+1,e)
+        if (key <v [m]) {
+            end = m;
+        }
+        else if (v[m] <key) {
+             begin = m+1;
+        }
+         else {
+            return m;
+        }
     }
-
-    size_t b = 0;
-    size_t m = (begin+end)/2;
-    // [b, e) = [b,m) U [m,e)
-
-    if (key <v [m]) {
-     return  binary_search_1(v, begin, m, key);
-    }
-    else if (v[m] <key) {
-         return  binary_search_1(v, m, end, key);
-    }
-     else {
-        return m;
-    }
+    return -1;
 
 }
 
@@ -113,116 +127,6 @@ void test(TResult expect, TFunc f, TParam1 param1,  TParam2 param2, TParam3 para
 }
 
 
-template <int N>
-void test_suit();
-
-
-//template <>
-//void test_suit<0>() {
-
-//    // Not exists
-//    typedef vector<int> Array;
-//    auto key = 8;
-//    //degenerate
-//    test(-1, naive_search_0, Array(), key);
-//    test(-1, naive_search_0, Array({key-1}), key);
-//    test(-1, naive_search_0, Array({key-1, key+1}), key);
-//    test(-1, naive_search_0, Array({1, 2, 3, 4, ,5, 7}), key);
-//    test(-1, naive_search_0, Array({9, 10, 11, 12}), key);
-//    test(-1, naive_search_0, Array({4, 1, 2, 7, 10}), key);
-
-
-//    //key exists
-//    test(0, naive_search_0, Array({key}), key);
-//    test(0, naive_search_0, Array({key, key+1}), key);
-//    test(1, naive_search_0, Array({key-1, key}), key);
-//    test(7, naive_search_0, Array({0, 1, 2, 3, 4, 5, 7, key}), key);
-//    test(0, naive_search_0, Array({key, 9, 10, 11, 12}), key);
-//    test(2, naive_search_0, Array({4, 1, key, 2, 7, 10}), key);
-
-//    test(0, naive_search_0, Array({key, 1, key, 10, 11, 12}), key);
-//    test(2, naive_search_0, Array({4, 1, key, 2,key, 7, 10}), key);
-
-//}
-//template <>
-//void test_suit<0>() {
-
-//    //degenerate
-//    std::vector<int> A={2,4,6,7,8,11,24,56,78,80};
-//    test(3, naive_search_0, A, 7);
-//    test(3, binary_search_0, A, 7, -1, -1);
-//}
-
-template <>
-void test_suit<1>() {
-    //trivial
-    std::vector<int> A={2,4,6,7,8,11,24,56,78,80};
-    test(6, naive_search_0, A, 24);
-    test(6, binary_search_0, A, 24, -1, -1);
-}
-
-
-template <>
-void test_suit<2>() {
-    //trivial-2
-    std::vector<int> A ={2,4,6};
-    test(0, naive_search_0, A, 2);
-    test(0, binary_search_0, A, 2, -1, -1);
-}
-
-template <>
-void test_suit<3>() {
-    //general
-    std::vector<int> A = {2, 4, 6};
-    test(1, naive_search_0, A, 4);
-    test(1, binary_search_0, A, 4, -1, -1);
-}
-
-
-
-template <>
-void test_suit<4>() {
-    std::vector<int> A ={2,4,6};
-    test(2, naive_search_0, A, 6);
-    test(2, binary_search_0, A, 6, -1, -1);
-}
-
-
-template <>
-void test_suit<5>() {
-    std::vector<int> A ={2,4};
-    test(1, naive_search_0, A, 4);
-    test(1, binary_search_0, A, 4, -1, -1);
-}
-
-
-
-template <>
-void test_suit<6>() {
-    std::vector<int> A ={2,4};
-    test(-1, naive_search_0, A, 3);
-    test(-1, binary_search_0, A, 3, -1, -1);
-}
-
-
-//template <int N>
-//void check_tests();
-
-//template <>
-//void check_tests<0>()
-//{
-//    cout<<"Test #0"<<endl;
-//    test_suit<0>();
-//}
-
-//template <int N>
-//void check_tests()
-//{
-//  cout<<"Test #"<<N<<endl;
-//  test_suit<N>();
-//  check_tests<N - 1>();
-//};
-
 int main(int argc, char *argv[])
 {
 //    check_tests<6>();
@@ -245,34 +149,61 @@ int main(int argc, char *argv[])
 
     typedef std::vector<int> Array;
        auto key = 8;
-    test(-1, naive_search_0, Array(), key);
-    test(-1, naive_search_0, Array({key-1}), key);
-    test(-1, naive_search_0, Array({key-1, key+1}), key);
-    test(-1, naive_search_0, Array({1, 2, 3, 4, 5, 7}), key);
-    test(-1, naive_search_0, Array({9, 10, 11, 12}), key);
-    test(-1, naive_search_0, Array({4, 1, 2, 7, 10}), key);
+//    test(-1, naive_search_0, Array(), key);
+//    test(-1, naive_search_0, Array({key-1}), key);
+//    test(-1, naive_search_0, Array({key-1, key+1}), key);
+//    test(-1, naive_search_0, Array({1, 2, 3, 4, 5, 7}), key);
+//    test(-1, naive_search_0, Array({9, 10, 11, 12}), key);
+//    test(-1, naive_search_0, Array({4, 1, 2, 7, 10}), key);
 
 
-    //key exists
-    test(0, naive_search_0, Array({key}), key);
-    test(0, naive_search_0, Array({key, key+1}), key);
-    test(1, naive_search_0, Array({key-1, key}), key);
-    test(7, naive_search_0, Array({0, 1, 2, 3, 4, 5, 7, key}), key);
-    test(0, naive_search_0, Array({key, 9, 10, 11, 12}), key);
-    test(2, naive_search_0, Array({4, 1, key, 2, 7, 10}), key);
+//    //key exists
+//    test(0, naive_search_0, Array({key}), key);
+//    test(0, naive_search_0, Array({key, key+1}), key);
+//    test(1, naive_search_0, Array({key-1, key}), key);
+//    test(7, naive_search_0, Array({0, 1, 2, 3, 4, 5, 7, key}), key);
+//    test(0, naive_search_0, Array({key, 9, 10, 11, 12}), key);
+//    test(2, naive_search_0, Array({4, 1, key, 2, 7, 10}), key);
 
-    test(0, naive_search_0, Array({key, 1, key, 10, 11, 12}), key);
-    test(2, naive_search_0, Array({4, 1, key, 2,key, 7, 10}), key);
+//    test(0, naive_search_0, Array({key, 1, key, 10, 11, 12}), key);
+//    test(2, naive_search_0, Array({4, 1, key, 2,key, 7, 10}), key);
 
 
-    test(-1, binary_search_1, Array(), 0, 0, key); // const std::vector<int>& v, size_t begin, size_t end, int key);
-    test(-1, binary_search_1, Array({1, 2, 3, 4, 5, 7}), 0, 6, key);
-    test(0, binary_search_1, Array({8, 9, 18}), 0, 3, key);
-    test(1, binary_search_1, Array({1, 8, 10}), 0, 3, key);
-    test(2, binary_search_1, Array({1, 2, 8}), 0, 3, key);
+//    test(-1, binary_search_1, Array(), 0, 0, key); // const std::vector<int>& v, size_t begin, size_t end, int key);
 
-    test(0, binary_search_1, Array({key, 9, 10, 11, 12}), 0, 5, key);
-    test(2, binary_search_1, Array({4, 5, key, 11, 17, 20}), 0, 6, key);
+//    test(-1, binary_search_1, Array({1, 2, 3, 4, 5, 7}), 0, 6, key);
+//    test(0, binary_search_1, Array({key}),0, 1, key);
+//    test(0, binary_search_1, Array({8, 9, 18}), 0, 3, key);
+//    test(1, binary_search_1, Array({1, 8, 10}), 0, 3, key);
+//    test(2, binary_search_1, Array({1, 2, 8}), 0, 3, key);
+
+//    test(-1, binary_search_1, Array({1, 2, 3}), 0, 3, key);
+//    test(-1, binary_search_1, Array({10, 20, 30}), 0, 3, key);
+
+//    test(0, binary_search_1, Array({key, 9, 10, 11, 12}), 0, 5, key);
+//    test(2, binary_search_1, Array({4, 5, key, 11, 17, 20}), 0, 6, key);
+
+
+
+    test(-1, binary_search_2, Array(),  key); // const std::vector<int>& v, size_t begin, size_t end, int key);
+
+    test(-1, binary_search_2, Array({1, 2, 3, 4, 5, 7}),  key);
+    test(-1, binary_search_2, Array({key-1}),key);
+
+    test(0, binary_search_2, Array({key}), key);
+    test(0, binary_search_2, Array({key, key+1}), key);
+    test(1, binary_search_2, Array({key-1, key}), key);
+    test(0, binary_search_2, Array({8, 9, 18}),  key);
+    test(1, binary_search_2, Array({1, 8, 10}),  key);
+    test(2, binary_search_2, Array({1, 2, 8}),key);
+
+    test(-1, binary_search_2, Array({1, 2, 3}), key);
+    test(-1, binary_search_2, Array({10, 20, 30}), key);
+
+    test(0, binary_search_2, Array({key, 9, 10, 11, 12}),  key);
+    test(2, binary_search_2, Array({4, 5, key, 11, 17, 20}), key);
+
+    test(3, binary_search_2, Array({4, 5,  6, key, 20}), key);
 
     return 0;
 }
