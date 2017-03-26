@@ -4,11 +4,6 @@
 #include <assert.h>
 
 
-#include <algorithm>
-#include <iostream>
-#include <iterator>
-#include <vector>
-
 using namespace std;
 template <class Iter, class ParamType>
 
@@ -23,6 +18,44 @@ Iter lower_bound_1(Iter first, Iter last, const ParamType &key) {
         }
     }
     return first;
+int binary_search_1(const std::vector<int>& v, size_t begin, size_t end, int key //, size_t depth=0
+                    ) {
+    //assert(depth <1000)
+    assert(std::is_sorted(v.begin(), v.end()));
+    if(begin<end){
+        size_t m = begin+ (end-begin)/2;
+        // [b, e) = [b,m) U[m] U [m+1,e)
+        if (key <v [m]) {
+         return  binary_search_1(v, begin, m, key);
+        }
+        else if (v[m] <key) {
+             return  binary_search_1(v, m+1, end, key);
+        }
+         else {
+            return m;
+        }
+    }
+    return -1;
+}
+
+int binary_search_2(const std::vector<int>& v, int key) {
+    assert(std::is_sorted(v.begin(), v.end()));
+    size_t begin = 0;
+    size_t end = v.size();
+    while (begin<end) {
+        size_t m = (begin+end)/2;
+        // [b, e) = [b,m) U[m] U [m+1,e)
+        if (key <v [m]) {
+            end = m;
+        }
+        else if (v[m] <key) {
+             begin = m+1;
+        }
+         else {
+            return m;
+        }
+    }
+    return -1;
 }
 
 template <class Iter, class ParamType>
