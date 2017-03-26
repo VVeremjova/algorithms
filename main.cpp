@@ -18,6 +18,7 @@ Iter lower_bound_1(Iter first, Iter last, const ParamType &key) {
         }
     }
     return first;
+}
 int binary_search_1(const std::vector<int>& v, size_t begin, size_t end, int key //, size_t depth=0
                     ) {
     //assert(depth <1000)
