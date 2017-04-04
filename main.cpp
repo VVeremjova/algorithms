@@ -1,8 +1,9 @@
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <assert.h>
-
+#include <iterator>
 
 using namespace std;
 template <class Iter, class ParamType>
@@ -19,6 +20,8 @@ Iter lower_bound_1(Iter first, Iter last, const ParamType &key) {
     }
     return first;
 }
+
+
 int binary_search_1(const std::vector<int>& v, size_t begin, size_t end, int key //, size_t depth=0
                     ) {
     //assert(depth <1000)
@@ -77,6 +80,21 @@ Iter upper_bound_1(Iter first, Iter last, const ParamType &key) {
 }
 
 template <class Iter, class ParamType>
+Iter upper_bound_2(Iter first, Iter last, const ParamType &key) {
+    while (first<last) {
+        Iter m = first + (last-first)/2;
+        if ( key <*m) {
+             last = m;
+
+        }
+        else {
+            first = m+1;
+        }
+    }
+    return first;
+}
+
+template <class Iter, class ParamType>
 
 Iter binary_search_3(Iter first, Iter last, const ParamType &key) {
     Iter v = lower_bound_1(first, last, key);
@@ -84,118 +102,291 @@ Iter binary_search_3(Iter first, Iter last, const ParamType &key) {
 }
 
 template <class Iter, class ParamType>
-
 Iter binary_search_4(Iter first, Iter last, const ParamType &key) {
-    Iter v = upper_bound_1(first, last, key);
+    Iter v = upper_bound_2(first, last, key);
     return (v!=last) && !(key >= *v ) ? v : last-1;
 }
 
-template <class TFunc, class TResult, class TParam1,  class TParam2 >
-
-void test(TResult expect, TFunc f, TParam1 param1,  TParam2 param2) {
-
-    auto got= f(param1, param2);
-
+template <class TFunc, class TResult, class TParam1 >
+void test(TResult expect, TFunc f, TParam1 param1) {
+    auto got= f(param1);
     if (got != expect) {
-
-        cerr<< "Failed:" <<" expected: " << expect<<", actual: " << got <<endl;
-
+        cerr<< "Failed! \n"; //<<" expected: " << expect<<", actual: " << got <<endl;
     }
-
     else {
-
         cout<<"Test passed!" <<endl;
-
     }
+}
 
+template <class TFunc, class TResult, class TParam1,  class TParam2 >
+void test(TResult expect, TFunc f, TParam1 param1,  TParam2 param2) {
+    auto got= f(param1, param2);
+    if (got != expect) {
+        cerr<< "Failed:" <<" expected: " << expect<<", actual: " << got <<endl;
+    }
+    else {
+        cout<<"Test passed!" <<endl;
+    }
+}
+
+template <class TFunc, class TResult, class TParam1>
+void test1(TResult expect, TFunc f, TParam1 param1) {
+    auto got= f(param1);
+    if (got != expect) {
+        cerr<< "Failed:" <<" expected: " << expect<<", actual: " << got <<endl;
+    }
+    else {
+        cout<<"Test passed!" <<endl;
+    }
+}
+
+namespace   {
+
+template <class ParamType>
+ParamType min_element1(ParamType b, ParamType e) {
+    auto result = b;
+    while (b < e) {
+        if (*b < *result ) {
+            result =b;
+        }
+        ++b;
+    }
+   return result;
+}
+
+}
+
+template <class TIter>
+void naive_sort(TIter b, TIter e) {
+    for (auto i=b; i<e; ++i) {
+        assert(is_sorted(b,i));
+        // [sorted) U [unsorted) = [b,i)U  [i,e)
+        for (auto j = i+1; j<e; ++j) {
+            // [unsorted) = [i] U [i+1,j) U [j, e)
+            assert(min_element1(i,j) == i);
+            if (*j<*i)
+                swap(*i,*j);
+            assert(min_element1(i,j) == i);
+        }
+        assert(is_sorted(b,i+1));
+    }
+}
+
+template <class TIter>
+void selection_sort(TIter b, TIter e) {
+    for (auto i=b; i<e; ++i) {
+        // [sorted) U [unsorted) = [b,i)U  [i,e)
+        assert(is_sorted(b,i));
+        swap( *i, *min_element1(i,e));
+        assert(is_sorted(b,i+1));
+    }
+}
+
+template <class TIter>
+void bubble_sort(TIter b, TIter e) {
+//    for (auto i=b; i<e; ++i) {
+//     // [unsorted) U [sorted) = [b,i)U  [i,e)
+//        auto sorted_begin = e-(i-b)-1;
+//        assert(sorted_begin<e);
+//        assert (is_sorted(sorted_begin,e));
+//        for (auto j = b; j<sorted_begin; ++j) {
+//            //assert(max_element(b,j) == j);
+//            if (*(j+1)<*j)
+//                std::iter_swap(j+1,j);
+////            assert(max_element(b,j) == j);
+//        }
+//    }
+
+    if (b==e) {
+        return;
+    }
+    auto sorted_begin = e-1;
+    while (b<sorted_begin) {
+        assert(sorted_begin<e);
+        assert (is_sorted(sorted_begin,e));
+
+        auto j = b;
+        while (j<sorted_begin) {
+            if (*(j+1)<*j)
+                std::iter_swap(j+1,j);
+             ++j;
+        }
+
+        --sorted_begin;
+        assert(is_sorted(sorted_begin,e));
+    }
+}
+
+
+//template <class TIter>
+//void insert_search(TIter b, TIter e) {
+//    if (b==e) {
+//        return;
+//    }
+
+//    auto pivot =b+1;
+//    while(pivot<e) {
+//        // [sorted) U [unsorted) = [b, pivot) U [pivot) U [pivot, unsorted)
+//        assert(is_sorted(b,pivot));
+//        auto i =pivot;
+//        while (b<i && *(i)<*(i-1)) {
+//            assert(is_sorted(b,i));
+//            assert(is_sorted(i, pivot));
+
+//            std::iter_swap(i,i-1);
+//            --i;
+//            assert(is_sorted(b,i));
+//            assert(is_sorted(i, pivot));
+//        }
+
+//        pivot++;
+//        assert(is_sorted(b,pivot));
+
+//    }
+//}
+
+template <class TIter>
+void merge(TIter b, TIter m, TIter e, TIter buff)  {
+    const auto size = e-b;
+    const auto old = buff;
+    const auto e1 = m;
+    while(b<e1 && m<e) {
+        //[sorted) U [sorted)
+        *buff++ = *b<*m ? *b++ : *m++;
+    }
+    buff = copy(b,e1,buff);
+    buff = copy(m,e,buff);
+    assert(buff-old ==size);
+}
+
+template <class TIter>
+void merge_sort_outer(TIter b, TIter e, TIter buff)  {
+
+    auto size = e-b;
+    if (size >1) {
+        auto m = b+(e-b)/2;
+        merge_sort_outer(b,m,buff);
+        merge_sort_outer(m,e,buff+(size)/2);
+        copy(buff,buff+size,b);
+        merge(b, m, e, buff);
+    } else {
+        copy(b,e,buff);
+    }
+}
+
+template <class TIter>
+void merge_sort_wrapper(TIter b, TIter e)  {
+   auto size = e-b;
+   vector<int> buff(size);
+   merge_sort_outer<TIter>(b,e,buff.begin());
+   copy(buff.begin(), buff.end(), b);
+}
+
+template <class TIter>
+TIter partition1(TIter b, TIter p, TIter e)  {
+    assert(b<e);
+    auto pivot= *p;
+
+    swap(*(e-1), *p);
+    auto ub = b;
+    auto ue = e-1;
+
+    //assert [b ub)<[ub, eb] < (ue, e]
+
+    while (ub <ue) {
+        if (*ub <pivot) {
+            ++ub;
+        }
+        else {
+            --ue;
+            swap(*ub,*ue);
+        }
+    }
+    swap(*ub,*(e-1));
+    return ub;
+}
+
+template <class TIter>
+TIter partition2(TIter b, TIter p, TIter e)  {
+    assert(b<e);
+    auto pivot= *p;
+    iter_swap(e-1,p);
+    auto b2 = b;
+    auto e2 = b;
+
+    //assert [b b2) [b2, e2)  [(]e2, e)
+    //assert [<p) [p <= )  ( unpr)
+
+    while (e2+1 <e) {
+        if (*e2 <pivot) {
+            swap(*b2, *e2);
+            ++b2;
+        }
+        ++e2;
+    }
+    iter_swap(e-1,b2);
+    return b2;
+}
+
+template <class TIter>
+TIter pivot_strategy(TIter b, TIter e)  {
+    assert(b<e);
+    auto m = b+(e-b)/2;
+    auto last =e-1;
+
+    if (*m <*b ) swap(b,m);
+    if (*last <*m ) swap(last,m);
+    if (*m <*b ) swap(b,m);
+    cout<<*m<<endl;
+    return m;
+
+}
+
+template <class TIter>
+void quick_sort(TIter b, TIter e)  {
+  if (e-b <2) {
+      return;
+  }
+  //auto p = select_pivot();
+  auto p = partition2(b,pivot_strategy(b, e),e);
+  //assert(*max(b,p) <= *p && p < *min(p+1,e));
+  quick_sort(b,p);
+  quick_sort(p+1,e);
 }
 
 int main()
 {
     typedef std::vector<int> Array;
-    auto search = [](const vector<int>&v, int key) {
-        auto r = binary_search_3(v.begin(),v.end(),key);
-        return r!= v.end()? r-v.begin() :-1;
-    };
+        auto sort = [](vector<int>&v) {
+            quick_sort(v.begin(),v.end());
 
-    auto search2 = [](const vector<int>&v, int key) {
-        auto r = binary_search_4(v.begin(),v.end(),key);
-        return r!= v.end()? r-v.begin() : -1;
-    };
+            for (vector<int>::iterator i=v.begin(); i<v.end(); i++) {
+                cout<< *i<<" ";
+            }
+            cout<<endl;
+            return v;
+        };
 
-    auto key = 8;
-  //  Array a ({key-1});
-   // Array::iterator i =  upper_bound_1(a.begin(), a.end(), key);
-   // cout<< i-a.begin() <<endl;
+//      test(Array(), sort, Array());
+      test(Array({1}), sort, Array({1}));
+      test(Array({1,2}), sort, Array({1,2}));
+      test(Array({1,2}), sort, Array({2,1}));
+      test(Array({1,1}), sort, Array({1,1}));
 
-    //Array::iterator i2 =  binary_search_3(a.begin(), a.end(), key);
-   //  cout<< i2-a.begin() <<endl;
-    // test cases:
-    /*key exists
-     * degenerate - not exists
-     * trivial
-     * trivial-2
-     * general
-     *
-     * key not exists
-     * degenerate
-     * trivial
-     * trivial-2
-     * general
-     */
+      test(Array({1,1, 1}), sort, Array({1,1,1}));
+      test(Array({1,2, 3}), sort, Array({1,2,3}));
+      test(Array({1,2, 3}), sort, Array({1,3,2}));
+      test(Array({1,2, 3}), sort, Array({3,2,1}));
+      test(Array({1,2, 3}), sort, Array({2,3,1}));
 
-   // test(-1, search, Array(), key);
-    //key exists
+      test(Array({3,4,5,5}), sort, Array({5,4,3,5}));
 
-    test(0, search, Array({key}), key);
-    test(0, search, Array({key, key+1}), key);
-    test(1, search, Array({key-1, key}), key);
-    test(2, search, Array({key-2, key-1,key}), key);
-    test(8, search, Array({0,1,2,3,4,5,6,7,key}), key);
-    test(0, search, Array({key, 9, 10, 11, 12}), key);
-    test(2, search, Array({2,4, key, 11, 12}), key);
-    test(0, search, Array({key, key, key+1, key+2}), key);
-    test(2, search, Array({key-2, key-1, key, key+2}), key);
-    test(2, search, Array({1, 7, key, key}), key);
+      test(Array({0,1,3,5,8}), sort, Array({3,1,8,5,0}));
+      test(Array({1,4,5,6,7,8}), sort, Array({5,7,8,1,6,4}));
 
-    // key not exists
-    cout<<"==== key not exists"<<endl;
-    test(-1, search, Array(), key);
-    test(-1, search, Array({key-1}), key);
-    test(-1, search, Array({key+1}), key);
-    test(-1, search, Array({key-2, key-1}), key);
-    test(-1, search, Array({key+1, key+2}), key);
-    test(-1, search, Array({key-1, key+1}), key);
-    test(-1, search, Array({1,2,3,4,5,6,7}), key);
-    test(-1, search, Array({9,10,11,12}), key);
-
-//    // key not exists
-
-    cout<<"==== key not exists - for upperbound search"<<endl;
-    test(-1, search2, Array(), key);
-    test(0, search2, Array({key-1}), key);
-    test(0, search2, Array({key+1}), key);
-    test(1, search2, Array({key-2, key-1}), key);
-    test(0, search2, Array({key+1, key+2}), key);
-    test(1, search2, Array({key-1, key+1}), key);
-    test(6, search2, Array({1,2,3,4,5,6,7}), key);
-    test(0, search2, Array({9,10,11,12}), key);
-
-    //key exists
-
-    cout<<"==== key exists - for upperbound search"<<endl;
-    test(0, search2, Array({key}), key);
-    test(1, search2, Array({key, key+1}), key);
-    test(1, search2, Array({key-1, key}), key);
-    test(2, search2, Array({key-2, key-1,key}), key);
-    test(8, search2, Array({0,1,2,3,4,5,6,7,key}), key);
-    test(1, search2, Array({key, 9, 10, 11, 12}), key);
-    test(3, search2, Array({2,4, key, 11, 12}), key);
-    test(2, search2, Array({key, key, key+1, key+2}), key);
-    test(3, search2, Array({key-2, key-1, key, key+2}), key);
-    test(3, search2, Array({1, 7, key, key}), key);
-    test(4, search2, Array({1, 7, key, key, 10}), key);
+      test(Array({1,2, 3, 4, 5,6,7,8}), sort, Array({8,6,5,2,1,4,3,7}));
 
     return 0;
 
 }
+
